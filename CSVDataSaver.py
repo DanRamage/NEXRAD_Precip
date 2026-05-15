@@ -1,5 +1,8 @@
+import errno
 import os
 import logging
+import shutil
+import tempfile
 
 import pytz
 from xmrgprocessing.xmrg_results import xmrg_results
@@ -7,6 +10,39 @@ from xmrgprocessing.xmrgdatasaver.nexrad_data_saver import precipitation_saver
 from datetime import datetime
 from pandas import read_csv
 from pathlib import Path
+
+
+def replace_file(source_filename: Path, destination_filename: Path):
+    """
+    Replace destination_filename with source_filename.
+
+    Path.replace() is atomic, but it only works when source and destination are
+    on the same filesystem. When the final directory is on another device (for
+    example NFS), fall back to copying into a temporary file in the destination
+    directory and then replacing the final file from there.
+    """
+    try:
+        source_filename.replace(destination_filename)
+        return
+    except OSError as e:
+        if e.errno != errno.EXDEV:
+            raise
+
+    destination_filename.parent.mkdir(parents=True, exist_ok=True)
+    temp_fd, temp_name = tempfile.mkstemp(
+        dir=destination_filename.parent,
+        prefix=f".{destination_filename.name}.",
+        suffix=".tmp",
+    )
+    os.close(temp_fd)
+    temp_destination_filename = Path(temp_name)
+    try:
+        shutil.copy2(source_filename, temp_destination_filename)
+        temp_destination_filename.replace(destination_filename)
+        source_filename.unlink()
+    except Exception:
+        temp_destination_filename.unlink(missing_ok=True)
+        raise
 
 
 class nexrad_csv_saver(precipitation_saver):
@@ -135,6 +171,6 @@ class nexrad_csv_saver(precipitation_saver):
                 self._logger.info(
                     f"Moving file: {final_filename} to {destination_filename}"
                 )
-                final_filename.replace(destination_filename)
+                replace_file(final_filename, destination_filename)
         except Exception as e:
             self._logger.exception(e)
