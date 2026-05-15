@@ -13,6 +13,7 @@ from pathlib import Path
 
 
 def replace_file(source_filename: Path, destination_filename: Path):
+    logger = logging.getLogger()
     """
     Replace destination_filename with source_filename.
 
@@ -22,12 +23,13 @@ def replace_file(source_filename: Path, destination_filename: Path):
     directory and then replacing the final file from there.
     """
     try:
+        logger.info(f"Replacing {source_filename} with {destination_filename}")
         source_filename.replace(destination_filename)
         return
     except OSError as e:
         if e.errno != errno.EXDEV:
             raise
-
+    logger.info(f"Copying {source_filename} to {destination_filename}")
     destination_filename.parent.mkdir(parents=True, exist_ok=True)
     temp_fd, temp_name = tempfile.mkstemp(
         dir=destination_filename.parent,
@@ -37,6 +39,7 @@ def replace_file(source_filename: Path, destination_filename: Path):
     os.close(temp_fd)
     temp_destination_filename = Path(temp_name)
     try:
+        logger.info(f"Copying {source_filename} to {temp_destination_filename}")
         shutil.copy2(source_filename, temp_destination_filename)
         temp_destination_filename.replace(destination_filename)
         source_filename.unlink()
