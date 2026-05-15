@@ -80,6 +80,8 @@ class nexrad_csv_saver(precipitation_saver):
     def finalize(self):
         """
         This function is for us to clean up before the script exits.
+        We keep a local copy around then merge in the updates, resort and copy the merged file
+        to the final directory.
         :return:
         """
         # Close the open files.
@@ -128,7 +130,6 @@ class nexrad_csv_saver(precipitation_saver):
                     sorted_df = unsorted_pd_df.sort_values(by="Start Time")
                 sorted_df.to_csv(final_filename, index=False)
                 destination_filename = self._output_directory / filename
-                self._logger.info(f"Deleting temp file: {unsorted_filename}")
                 final_filename.replace(destination_filename)
         except Exception as e:
             self._logger.exception(e)
