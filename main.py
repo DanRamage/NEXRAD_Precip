@@ -157,11 +157,11 @@ def main():
     precipitation_temp_output_directory = Path(
         config_file.get("xmrg", "precipitation_temp_output_directory")
     )
-    precipitation_temp_output_directory.mkdir(exist_ok=True)
+    precipitation_temp_output_directory.mkdir(parents=True, exist_ok=True)
     precipitation_output_directory = Path(
         config_file.get("xmrg", "precipitation_output_directory")
     )
-    precipitation_output_directory.mkdir(exist_ok=True)
+    precipitation_output_directory.mkdir(parents=True, exist_ok=True)
     # data_saver = nexrad_xenia_sqlite_saver(sqlite_file)
     data_saver = nexrad_csv_saver(
         precipitation_output_directory,
