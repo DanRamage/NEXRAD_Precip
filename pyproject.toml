@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "saluda-precip"
+version = "0.1.0"
+description = ""
+authors = ["DANRAMAGE <ChiefDan@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+geojson = "^3.1.0"
+xmrgprocessing = {git = "https://github.com/DanRamage/xmrgprocessing.git"}
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
