@@ -86,6 +86,7 @@ class nexrad_csv_saver(precipitation_saver):
         """
         # Close the open files.
         for boundary_name, precip_file_obj in self._precip_files.items():
+            self._logger.info(f"Closing file: {precip_file_obj.name}")
             precip_file_obj.close()
         try:
             for boundary_name, precip_file_obj in self._precip_files.items():
@@ -109,6 +110,7 @@ class nexrad_csv_saver(precipitation_saver):
                     keep_default_na=False,
                 )
                 if final_filename.exists():
+                    self._logger.info(f"Merging file: {final_filename}")
                     pd_df = read_csv(
                         final_filename,
                         dtype={
@@ -130,6 +132,9 @@ class nexrad_csv_saver(precipitation_saver):
                     sorted_df = unsorted_pd_df.sort_values(by="Start Time")
                 sorted_df.to_csv(final_filename, index=False)
                 destination_filename = self._output_directory / filename
+                self._logger.info(
+                    f"Moving file: {final_filename} to {destination_filename}"
+                )
                 final_filename.replace(destination_filename)
         except Exception as e:
             self._logger.exception(e)
