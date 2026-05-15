@@ -90,7 +90,7 @@ def main():
         "--StartDate",
         dest="start_date",
         help="The starting date to process XMRG files.",
-        default=(datetime.now() - timedelta(hours=72)).strftime("%Y-%m-%d %H:00:00"),
+        default=(datetime.now() - timedelta(hours=192)).strftime("%Y-%m-%d %H:00:00"),
     )
 
     parser.add_option(
